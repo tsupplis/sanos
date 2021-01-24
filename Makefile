@@ -54,20 +54,23 @@ DEFS=
 # MSVC=8  for Microsoft Visual Visual Studio 2005
 # MSVC=9  for Microsoft Visual Visual Studio 2008
 # MSVC=10 for Microsoft Visual Visual Studio 2010
-# MSVC=12 for Microsoft Visual Visual Studio 2013
+# MSVC=11 for Microsoft Visual Visual Studio 2012
+
 !IFNDEF MSVC
-MSVC=12
+MSVC=7
 !ENDIF
 
 AFLAGS=/nologo
 
-!IF $(MSVC) == 8 || $(MSVC) == 9 || $(MSVC) == 10 || $(MSVC) == 12
+!IF $(MSVC) == 11
+CFLAGS=/nologo /O2 /Ob1 /Oi /Ot /Oy /GS- /GR- /X /GF /Gy /W3 /arch:IA32 /I $(SRC)/include $(DEFS)
+!ELSEIF $(MSVC) == 8 || $(MSVC) == 9 || $(MSVC) == 10
 CFLAGS=/nologo /O2 /Ob1 /Oi /Ot /Oy /GS- /GR- /X /GF /Gy /W3 /I $(SRC)/include $(DEFS)
 !ELSE
 CFLAGS=/nologo /O2 /Og /Ob1 /Oi /Ot /Oy /X /GF /Gy /W3 /I $(SRC)/include $(DEFS)
 !ENDIF
 
-!IF $(MSVC) == 9 || $(MSVC) == 10 || $(MSVC) == 12
+!IF $(MSVC) > 8
 RAWIMGFLAGS=/FILEALIGN:4096
 !ELSE
 RAWIMGFLAGS=/OPT:WIN98
@@ -89,6 +92,7 @@ RAWIMGFLAGS=/OPT:WIN98
 #
 # /GS-                  Disable security checks
 # /GR-                  Disable runtime typeinfo
+# /arch:IA32            Generate code for x87
 #
 
 all: dirs tools sanos bootdisk boothd netbootimg bootcd
@@ -177,7 +181,7 @@ $(OUTPUT)/ok:
 #
 
 clean:
-    -del /Q $(OUTPUT)
+    #-del /Q $(OUTPUT)
 
 #
 # tools
@@ -199,7 +203,7 @@ clean:
 # /I $(SRC)/include     Include search path
 #
 
-!IF $(MSVC) == 9 || $(MSVC) == 10 || $(MSVC) == 12
+!IF $(MSVC) == 9 || $(MSVC) == 10
 WIN32CFLAGS=/nologo /O2 /Ob1 /Oy /Oi /GF /GS- /GR- /MT /Gy /W3 /TC /D WIN32 /D NDEBUG /D _CONSOLE /D _MBCS /D _CRT_SECURE_NO_DEPRECATE /D _CRT_NONSTDC_NO_DEPRECATE /D _USE_32BIT_TIME_T
 !ELSEIF $(MSVC) == 8
 WIN32CFLAGS=/nologo /O2 /Ob1 /Oy /Oi /GF /GS- /GR- /MT /Gy /W3 /TC /D WIN32 /D NDEBUG /D _CONSOLE /D _MBCS /D _CRT_SECURE_NO_DEPRECATE /D _CRT_NONSTDC_NO_DEPRECATE /D _USE_32BIT_TIME_T
@@ -378,6 +382,7 @@ $(LIBS)/krnl.lib $(INSTALL)/boot/krnl.dll: \
   $(SRC)\sys\dev\kbd.c \
   $(SRC)\sys\dev\hd.c \
   $(SRC)\sys\dev\fd.c \
+  $(SRC)\sys\dev\vga.c \
   $(SRC)\sys\dev\virtioblk.c \
   $(SRC)\sys\dev\cons.c \
   $(SRC)\sys\net\udpsock.c \
